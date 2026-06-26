@@ -1,0 +1,105 @@
+#include <iostream>
+#include <vector>
+#include <string>
+using namespace std;
+
+class TrieNode {
+public:
+    TrieNode* children[26];
+    bool isEnd;
+
+    TrieNode() {
+        isEnd = false;
+        for (int i = 0; i < 26; i++) {
+            children[i] = NULL;
+        }
+    }
+};
+
+class AutoCompleteSystem {
+private:
+    TrieNode* root;
+
+    void dfs(TrieNode* node, string prefix, vector<string>& result) {
+        if (node->isEnd) {
+            result.push_back(prefix);
+        }
+
+        for (int i = 0; i < 26; i++) {
+            if (node->children[i] != NULL) {
+                char ch = 'a' + i;
+                dfs(node->children[i], prefix + ch, result);
+            }
+        }
+    }
+
+public:
+    AutoCompleteSystem() {
+        root = new TrieNode();
+    }
+
+    void insertWord(string word) {
+        TrieNode* current = root;
+
+        for (char ch : word) {
+            int index = ch - 'a';
+
+            if (current->children[index] == NULL) {
+                current->children[index] = new TrieNode();
+            }
+
+            current = current->children[index];
+        }
+
+        current->isEnd = true;
+    }
+
+    vector<string> getSuggestions(string prefix) {
+        TrieNode* current = root;
+
+        for (char ch : prefix) {
+            int index = ch - 'a';
+
+            if (current->children[index] == NULL) {
+                return {};
+            }
+
+            current = current->children[index];
+        }
+
+        vector<string> result;
+        dfs(current, prefix, result);
+        return result;
+    }
+};
+
+int main() {
+    AutoCompleteSystem system;
+
+    vector<string> words = {
+        "apple", "app", "application", "apply",
+        "bat", "ball", "banana", "banner",
+        "cat", "camera", "camp", "can"
+    };
+
+    for (string word : words) {
+        system.insertWord(word);
+    }
+
+    string prefix;
+    cout << "Enter prefix to search: ";
+    cin >> prefix;
+
+    vector<string> suggestions = system.getSuggestions(prefix);
+
+    if (suggestions.empty()) {
+        cout << "No suggestions found!" << endl;
+    } else {
+        cout << "Auto-complete suggestions:" << endl;
+        for (string word : suggestions) {
+            cout << word << endl;
+        }
+    }
+
+    return 0;
+}
