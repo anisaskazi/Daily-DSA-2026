@@ -1,0 +1,133 @@
+# Machine Learning - Day 25
+# Topic: Random Forest Classification
+
+# 1. Import libraries
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import (
+    accuracy_score,
+    confusion_matrix,
+    classification_report
+)
+
+# 2. Load dataset
+iris = load_iris()
+
+X = iris.data
+y = iris.target
+
+# 3. Convert dataset into DataFrame
+df = pd.DataFrame(X, columns=iris.feature_names)
+df["target"] = y
+
+print("Dataset:")
+print(df.head())
+
+print("\nDataset Shape:")
+print(df.shape)
+
+print("\nTarget Classes:")
+print(iris.target_names)
+
+# 4. Split dataset into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(
+    X,
+    y,
+    test_size=0.20,
+    random_state=42,
+    stratify=y
+)
+
+print("\nTraining samples:", len(X_train))
+print("Testing samples:", len(X_test))
+
+# 5. Create Random Forest model
+model = RandomForestClassifier(
+    n_estimators=100,
+    random_state=42
+)
+
+# 6. Train the model
+model.fit(X_train, y_train)
+
+print("\nModel training completed successfully.")
+
+# 7. Make predictions
+y_pred = model.predict(X_test)
+
+print("\nActual Values:")
+print(y_test)
+
+print("\nPredicted Values:")
+print(y_pred)
+
+# 8. Calculate accuracy
+accuracy = accuracy_score(y_test, y_pred)
+
+print("\nAccuracy:")
+print(f"{accuracy * 100:.2f}%")
+
+# 9. Confusion Matrix
+cm = confusion_matrix(y_test, y_pred)
+
+print("\nConfusion Matrix:")
+print(cm)
+
+# 10. Classification Report
+print("\nClassification Report:")
+print(
+    classification_report(
+        y_test,
+        y_pred,
+        target_names=iris.target_names
+    )
+)
+
+# 11. Feature Importance
+importance = model.feature_importances_
+
+feature_importance = pd.DataFrame({
+    "Feature": iris.feature_names,
+    "Importance": importance
+})
+
+feature_importance = feature_importance.sort_values(
+    by="Importance",
+    ascending=False
+)
+
+print("\nFeature Importance:")
+print(feature_importance)
+
+# 12. Plot Feature Importance
+plt.figure(figsize=(8, 5))
+
+plt.bar(
+    feature_importance["Feature"],
+    feature_importance["Importance"]
+)
+
+plt.title("Random Forest Feature Importance")
+plt.xlabel("Features")
+plt.ylabel("Importance")
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
+
+# 13. Predict a new flower
+new_flower = np.array([[5.1, 3.5, 1.4, 0.2]])
+
+prediction = model.predict(new_flower)
+
+print("\nNew Flower Data:")
+print(new_flower)
+
+print("\nPredicted Class:")
+print(iris.target_names[prediction[0]])
+
+print("\nDay 25 Machine Learning Program Completed!")
